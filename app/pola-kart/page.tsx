@@ -212,3 +212,4 @@ const PolaKart = () => {
     </div>
   )
 }
+export default PolaKart;

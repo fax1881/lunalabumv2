@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
+import type { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'gizliAnahtar';
@@ -9,9 +10,9 @@ export async function POST(req: NextRequest) {
   // Kullanıcıyı JWT ile doğrula
   const token = req.cookies.get('token')?.value;
   if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
-  let userData;
+  let userData: JwtPayload;
   try {
-    userData = jwt.verify(token, JWT_SECRET);
+    userData = jwt.verify(token, JWT_SECRET) as JwtPayload;
   } catch {
     return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
   }
@@ -34,8 +35,7 @@ export async function POST(req: NextRequest) {
       odeme: false,
       kargo: '',
       tarih: new Date(),
-      // Kullanıcıyı referansla ilişkilendir (email)
-      referans: userData.email
+      kullaniciEmail: userData.email
     }
   });
 

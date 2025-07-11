@@ -211,3 +211,4 @@ const PolaKart = () => {
       <Footer />
     </div>
   )
+}

@@ -11,12 +11,34 @@ export async function GET() {
 
 // Yeni ürün ekle
 export async function POST(req: NextRequest) {
-  const { name, description, price, image, category } = await req.json();
-  if (!name || !price) {
+  const {
+    name,
+    description,
+    price,
+    image,
+    category,
+    subcategory,
+    sizes,
+    prices,
+    features,
+    inStock
+  } = await req.json();
+  if (!name || price === undefined) {
     return NextResponse.json({ error: 'Ürün adı ve fiyat zorunlu.' }, { status: 400 });
   }
   const product = await prisma.product.create({
-    data: { name, description, price, image, category }
+    data: {
+      name,
+      description,
+      price: parseFloat(price),
+      image,
+      category,
+      subcategory,
+      sizes: sizes || [],
+      prices: prices || [],
+      features: features || [],
+      inStock: inStock !== undefined ? inStock : true
+    }
   });
   return NextResponse.json(product);
 } 

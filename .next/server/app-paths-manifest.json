@@ -1,5 +1,7 @@
 {
+  "/giris/page": "app/giris/page.js",
   "/page": "app/page.js",
-  "/api/urunler/route": "app/api/urunler/route.js",
-  "/akordiyon-kitap/page": "app/akordiyon-kitap/page.js"
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/me/route": "app/api/auth/me/route.js",
+  "/api/urunler/route": "app/api/urunler/route.js"
 }

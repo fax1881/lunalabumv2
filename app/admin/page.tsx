@@ -1,222 +1,245 @@
-"use client"
+'use client';
 
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { 
+  Package, 
+  Users, 
+  ShoppingCart, 
+  TrendingUp, 
+  Settings,
+  BarChart3,
+  FileText,
+  DollarSign
+} from 'lucide-react';
 
-const IBAN = "TR00 0000 0000 0000 0000 0000 00";
+interface DashboardStats {
+  totalOrders: number;
+  totalUsers: number;
+  totalProducts: number;
+  totalRevenue: number;
+  pendingOrders: number;
+  completedOrders: number;
+}
 
-const AdminPanel = () => {
-  const [siparisler, setSiparisler] = useState<any[]>([]);
-  const [kargoInput, setKargoInput] = useState<{ [key: number]: string }>({});
-  const [odemeDurum, setOdemeDurum] = useState<{ [key: number]: boolean }>({});
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalOrders: 0,
+    totalUsers: 0,
+    totalProducts: 0,
+    totalRevenue: 0,
+    pendingOrders: 0,
+    completedOrders: 0
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Siparişleri API'den çek
-  useEffect(() => {
-    setLoading(true);
-    fetch("/api/siparisler")
-      .then(res => res.json())
-      .then(data => {
-        setSiparisler(data);
-        // Ödeme ve kargo inputlarını başlat
-        const odeme: any = {};
-        const kargo: any = {};
-        data.forEach((sip: any, idx: number) => {
-          odeme[sip.id] = !!sip.odeme;
-          kargo[sip.id] = sip.kargo || "";
-        });
-        setOdemeDurum(odeme);
-        setKargoInput(kargo);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Siparişler yüklenemedi.");
-        setLoading(false);
-      });
-  }, []);
-
-  // Ödeme güncelle
-  const handleOdemeChange = async (id: number, checked: boolean) => {
-    try {
-      await fetch("/api/siparisler", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, odeme: checked })
-      });
-      setOdemeDurum({ ...odemeDurum, [id]: checked });
-      setSiparisler(siparisler.map(s => s.id === id ? { ...s, odeme: checked } : s));
-    } catch {
-      setError("Ödeme durumu güncellenemedi.");
-    }
-  };
-
-  // Kargo güncelle
-  const handleKargoKaydet = async (id: number) => {
-    try {
-      await fetch("/api/siparisler", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, kargo: kargoInput[id] })
-      });
-      setSiparisler(siparisler.map(s => s.id === id ? { ...s, kargo: kargoInput[id] } : s));
-    } catch {
-      setError("Kargo numarası güncellenemedi.");
-    }
-  };
-
-  // Ürünler
-  const [urunler, setUrunler] = useState<any[]>([]);
-  const [urunForm, setUrunForm] = useState({ name: '', description: '', price: '', image: '', category: '' });
-  const [urunLoading, setUrunLoading] = useState(true);
-  const [urunError, setUrunError] = useState('');
-  const [urunSuccess, setUrunSuccess] = useState('');
 
   useEffect(() => {
-    fetch('/api/urunler')
-      .then(res => res.json())
-      .then(data => {
-        setUrunler(data);
-        setUrunLoading(false);
-      })
-      .catch(() => {
-        setUrunError('Ürünler yüklenemedi.');
-        setUrunLoading(false);
-      });
+    fetchDashboardStats();
   }, []);
 
-  const handleUrunFormChange = (e: any) => {
-    setUrunForm({ ...urunForm, [e.target.name]: e.target.value });
-  };
-
-  const handleUrunEkle = async (e: any) => {
-    e.preventDefault();
-    setUrunError('');
-    setUrunSuccess('');
+  const fetchDashboardStats = async () => {
     try {
-      const res = await fetch('/api/urunler', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: urunForm.name,
-          description: urunForm.description,
-          price: parseFloat(urunForm.price),
-          image: urunForm.image,
-          category: urunForm.category
-        })
+      // Mock veriler - gerçek uygulamada API'den gelecek
+      setStats({
+        totalOrders: 156,
+        totalUsers: 89,
+        totalProducts: 24,
+        totalRevenue: 45678.50,
+        pendingOrders: 23,
+        completedOrders: 133
       });
-      if (res.ok) {
-        const yeni = await res.json();
-        setUrunler([yeni, ...urunler]);
-        setUrunForm({ name: '', description: '', price: '', image: '', category: '' });
-        setUrunSuccess('Ürün eklendi!');
-      } else {
-        const data = await res.json();
-        setUrunError(data.error || 'Ürün eklenemedi.');
-      }
-    } catch {
-      setUrunError('Sunucu hatası.');
+    } catch (error) {
+      console.error('Dashboard stats error:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const adminMenuItems = [
+    {
+      title: 'Sipariş Yönetimi',
+      description: 'Siparişleri görüntüle, durum güncelle',
+      icon: ShoppingCart,
+      href: '/admin/siparisler',
+      color: 'bg-blue-500',
+      count: stats.pendingOrders
+    },
+    {
+      title: 'Ürün Yönetimi',
+      description: 'Ürünleri ekle, düzenle, sil',
+      icon: Package,
+      href: '/admin/urunler',
+      color: 'bg-green-500',
+      count: stats.totalProducts
+    },
+    {
+      title: 'Kullanıcı Yönetimi',
+      description: 'Kullanıcıları görüntüle ve yönet',
+      icon: Users,
+      href: '/admin/kullanicilar',
+      color: 'bg-purple-500',
+      count: stats.totalUsers
+    },
+    {
+      title: 'Raporlar',
+      description: 'Satış ve performans raporları',
+      icon: BarChart3,
+      href: '/admin/raporlar',
+      color: 'bg-orange-500'
+    },
+    {
+      title: 'Ayarlar',
+      description: 'Site ayarları ve konfigürasyon',
+      icon: Settings,
+      href: '/admin/ayarlar',
+      color: 'bg-gray-500'
+    }
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <h1 className="text-2xl font-bold mb-8 text-center text-primary-700">Admin Paneli</h1>
-      <div className="max-w-4xl mx-auto bg-white rounded shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Tüm Siparişler</h2>
-        {loading ? (
-          <p className="text-gray-500">Yükleniyor...</p>
-        ) : error ? (
-          <p className="text-red-500">{error}</p>
-        ) : siparisler.length === 0 ? (
-          <p className="text-gray-500">Henüz sipariş yok.</p>
-        ) : (
-          <table className="w-full text-sm border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 border">#</th>
-                <th className="p-2 border">Tarih</th>
-                <th className="p-2 border">Ürün</th>
-                <th className="p-2 border">Adet</th>
-                <th className="p-2 border">Adres</th>
-                <th className="p-2 border">Referans</th>
-                <th className="p-2 border">Ödeme</th>
-                <th className="p-2 border">Kargo Takip</th>
-              </tr>
-            </thead>
-            <tbody>
-              {siparisler.map((s, idx) => (
-                <tr key={s.id} className="border-b">
-                  <td className="p-2 border">{idx + 1}</td>
-                  <td className="p-2 border">{new Date(s.tarih).toLocaleString("tr-TR")}</td>
-                  <td className="p-2 border">{s.urun}</td>
-                  <td className="p-2 border">{s.adet}</td>
-                  <td className="p-2 border text-xs">{s.adres}</td>
-                  <td className="p-2 border font-mono">{s.referans}</td>
-                  <td className="p-2 border text-center">
-                    <input type="checkbox" checked={!!odemeDurum[s.id]} onChange={e => handleOdemeChange(s.id, e.target.checked)} />
-                  </td>
-                  <td className="p-2 border">
-                    <div className="flex gap-2 items-center">
-                      <input
-                        type="text"
-                        value={kargoInput[s.id] || ""}
-                        onChange={e => setKargoInput({ ...kargoInput, [s.id]: e.target.value })}
-                        className="border rounded px-2 py-1 w-32"
-                        placeholder="Kargo No"
-                      />
-                      <button
-                        className="bg-primary-600 hover:bg-primary-700 text-white px-2 py-1 rounded text-xs"
-                        onClick={() => handleKargoKaydet(s.id)}
-                      >Kaydet</button>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Admin Paneli</h1>
+          <p className="text-gray-600">Sitenizi yönetmek için aşağıdaki seçenekleri kullanın</p>
+        </motion.div>
+
+        {/* Stats Cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+        >
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Sipariş</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalOrders}</p>
+              </div>
+              <div className="bg-blue-100 p-3 rounded-lg">
+                <ShoppingCart className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Gelir</p>
+                <p className="text-2xl font-bold text-gray-800">₺{stats.totalRevenue.toLocaleString()}</p>
+              </div>
+              <div className="bg-green-100 p-3 rounded-lg">
+                <DollarSign className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Bekleyen Sipariş</p>
+                <p className="text-2xl font-bold text-orange-600">{stats.pendingOrders}</p>
+              </div>
+              <div className="bg-orange-100 p-3 rounded-lg">
+                <Package className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Toplam Kullanıcı</p>
+                <p className="text-2xl font-bold text-gray-800">{stats.totalUsers}</p>
+              </div>
+              <div className="bg-purple-100 p-3 rounded-lg">
+                <Users className="h-6 w-6 text-purple-600" />
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Admin Menu */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {adminMenuItems.map((item, index) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
+            >
+              <Link href={item.href}>
+                <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow cursor-pointer group">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 rounded-lg ${item.color} text-white`}>
+                      <item.icon className="h-6 w-6" />
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      <div className="max-w-4xl mx-auto mt-8 bg-white rounded shadow p-6">
-        <h2 className="text-lg font-semibold mb-2">IBAN Bilgisi</h2>
-        <div className="font-mono bg-gray-100 rounded p-2 select-all mb-2">{IBAN}</div>
-        <div className="text-gray-500 text-sm">Her siparişin açıklamasında referans numarası bulunur.</div>
-      </div>
-      {/* Ürün Yönetimi */}
-      <div className="max-w-4xl mx-auto mt-8 bg-white rounded shadow p-6">
-        <h2 className="text-lg font-semibold mb-4">Ürün Yönetimi</h2>
-        <form onSubmit={handleUrunEkle} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <input name="name" value={urunForm.name} onChange={handleUrunFormChange} placeholder="Ürün Adı" className="border rounded px-3 py-2" required />
-          <input name="price" value={urunForm.price} onChange={handleUrunFormChange} placeholder="Fiyat (₺)" type="number" step="0.01" className="border rounded px-3 py-2" required />
-          <input name="image" value={urunForm.image} onChange={handleUrunFormChange} placeholder="Görsel URL" className="border rounded px-3 py-2" />
-          <input name="category" value={urunForm.category} onChange={handleUrunFormChange} placeholder="Kategori" className="border rounded px-3 py-2" />
-          <textarea name="description" value={urunForm.description} onChange={handleUrunFormChange} placeholder="Açıklama" className="border rounded px-3 py-2 md:col-span-2" rows={2} />
-          <button type="submit" className="bg-primary-600 hover:bg-primary-700 text-white rounded px-4 py-2 font-medium md:col-span-2">Ürün Ekle</button>
-        </form>
-        {urunError && <div className="text-red-500 mb-2">{urunError}</div>}
-        {urunSuccess && <div className="text-green-600 mb-2">{urunSuccess}</div>}
-        <h3 className="text-md font-semibold mb-2 mt-6">Mevcut Ürünler</h3>
-        {urunLoading ? (
-          <p className="text-gray-500">Yükleniyor...</p>
-        ) : urunler.length === 0 ? (
-          <p className="text-gray-500">Henüz ürün yok.</p>
-        ) : (
-          <ul className="divide-y">
-            {urunler.map((u) => (
-              <li key={u.id} className="py-2 flex items-center gap-4">
-                <img src={u.image || 'https://via.placeholder.com/60x60?text=Ürün'} alt={u.name} className="w-16 h-16 object-cover rounded border" />
-                <div className="flex-1">
-                  <div className="font-medium">{u.name}</div>
-                  <div className="text-sm text-gray-600">{u.category}</div>
-                  <div className="text-xs text-gray-500">{u.description}</div>
+                    {item.count !== undefined && (
+                      <span className="bg-red-100 text-red-600 text-xs font-medium px-2 py-1 rounded-full">
+                        {item.count}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm">{item.description}</p>
                 </div>
-                <div className="font-semibold text-primary-700">{u.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</div>
-              </li>
-            ))}
-          </ul>
-        )}
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 bg-white rounded-xl shadow-lg p-6"
+        >
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Hızlı İşlemler</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link href="/admin/siparisler?filter=pending">
+              <button className="w-full bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors">
+                Bekleyen Siparişleri Görüntüle
+              </button>
+            </Link>
+            <Link href="/admin/urunler/new">
+              <button className="w-full bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                Yeni Ürün Ekle
+              </button>
+            </Link>
+            <Link href="/admin/raporlar">
+              <button className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                Raporları Görüntüle
+              </button>
+            </Link>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
-};
-
-export default AdminPanel; 
+} 

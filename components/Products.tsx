@@ -2,13 +2,16 @@
 
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check } from 'lucide-react'
+import { Check, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
+
+const USER_ID = 1; // Girişli kullanıcı id'si (örnek)
 
 const Products = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [addedId, setAddedId] = useState<number|null>(null);
 
   useEffect(() => {
     fetch('/api/urunler')
@@ -22,6 +25,21 @@ const Products = () => {
         setLoading(false);
       });
   }, []);
+
+  const addToCart = async (product: any) => {
+    await fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: USER_ID,
+        productId: product.id,
+        quantity: 1,
+        price: product.price
+      })
+    });
+    setAddedId(product.id);
+    setTimeout(() => setAddedId(null), 1200);
+  };
 
   return (
     <section className="py-20 bg-gray-50">
@@ -56,17 +74,21 @@ const Products = () => {
                 viewport={{ once: true }}
                 className="card overflow-hidden"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={product.image || 'https://via.placeholder.com/400x300?text=Ürün'}
-                    alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
-                </div>
+                <Link href={`/urunler/${product.id}`}>
+                  <div className="relative h-48 overflow-hidden cursor-pointer">
+                    <img
+                      src={product.image || 'https://via.placeholder.com/400x300?text=Ürün'}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </div>
+                </Link>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    {product.name}
-                  </h3>
+                  <Link href={`/urunler/${product.id}`}>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors cursor-pointer">
+                      {product.name}
+                    </h3>
+                  </Link>
                   {product.category && (
                     <div className="text-xs text-yellow-600 mb-2">{product.category}</div>
                   )}
@@ -76,9 +98,15 @@ const Products = () => {
                   <div className="text-lg font-semibold text-primary-700 mb-4">
                     {product.price.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
                   </div>
-                  <Link href={"/sepet/checkout"} className="btn-primary w-full block text-center">
-                    Siparişe Başla
-                  </Link>
+                  <button
+                    className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors duration-200 ${addedId === product.id ? 'bg-green-600 text-white' : 'bg-primary-600 hover:bg-primary-700 text-white'}`}
+                    onClick={() => addToCart(product)}
+                    disabled={addedId === product.id}
+                  >
+                    {addedId === product.id ? <Check size={20} /> : <ShoppingCart size={20} />}
+                    {addedId === product.id ? 'Sepete Eklendi' : 'Sepete Ekle'}
+                  </button>
+                  <Link href={"/sepet"} className="block text-center text-primary-600 mt-2 text-sm underline">Sepete Git</Link>
                 </div>
               </motion.div>
             ))}
@@ -86,7 +114,7 @@ const Products = () => {
         )}
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Products 
+export default Products; 

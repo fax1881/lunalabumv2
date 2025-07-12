@@ -14,8 +14,9 @@ import {
   Users,
   FileText,
   Camera,
+  Home,
   Gift,
-  Home
+  Palette
 } from 'lucide-react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
@@ -24,94 +25,56 @@ const Takvim = () => {
   const products = [
     {
       id: 1,
-      name: 'Duvar Takvimi',
-      description: 'Fotoğraflı duvar takvimi',
-      sizes: ['A3 (12 ay)', 'A2 (12 ay)', 'A1 (12 ay)'],
-      prices: ['45₺', '65₺', '95₺'],
-      features: ['12 ay', 'Fotoğraflı', 'Duvara asılabilir'],
-      image: '/images/duvar-takvimi.jpg'
+      name: '13x13 cm Masa Takvimi',
+      description: '13x13 cm ölçüsünde 12 sayfa + 1 kapaktan oluşmaktadır.',
+      price: '199,90 TL',
+      features: ['12 sayfa + 1 kapak', 'Masa takvimi', 'Kişiselleştirilebilir'],
+      image: '/images/takvim-13x13.jpg'
     },
     {
       id: 2,
-      name: 'Masa Takvimi',
-      description: 'Kompakt masa takvimi',
-      sizes: ['A4 (12 ay)', 'A5 (12 ay)'],
-      prices: ['25₺', '35₺'],
-      features: ['Kompakt boyut', 'Masa üstü', 'Pratik kullanım'],
-      image: '/images/masa-takvimi.jpg'
+      name: '13x26 cm Masa Takvimi',
+      description: '13x26 cm ölçüsünde 12 sayfa + 1 kapaktan oluşmaktadır.',
+      price: '279,90 TL',
+      features: ['12 sayfa + 1 kapak', 'Büyük masa takvimi', 'Detaylı görünüm'],
+      image: '/images/takvim-13x26.jpg'
     },
     {
       id: 3,
-      name: 'Cep Takvimi',
-      description: 'Küçük boyutlu cep takvimi',
-      sizes: ['9x13 cm', '10x15 cm'],
-      prices: ['15₺', '20₺'],
-      features: ['Cep boyutu', 'Taşınabilir', 'Hediye ideal'],
-      image: '/images/cep-takvimi.jpg'
-    },
-    {
-      id: 4,
-      name: 'Aile Takvimi',
-      description: 'Aile fotoğrafları ile özel takvim',
-      sizes: ['A3 (12 ay)', 'A2 (12 ay)'],
-      prices: ['55₺', '75₺'],
-      features: ['Aile fotoğrafları', 'Özel tasarım', 'Anlamlı hediye'],
-      image: '/images/aile-takvimi.jpg'
-    },
-    {
-      id: 5,
-      name: 'Kurumsal Takvim',
-      description: 'Şirketler için özel takvim',
-      sizes: ['A3 (12 ay)', 'A2 (12 ay)', 'A1 (12 ay)'],
-      prices: ['65₺', '85₺', '125₺'],
-      features: ['Kurumsal tasarım', 'Logo entegrasyonu', 'Toplu sipariş'],
-      image: '/images/kurumsal-takvimi.jpg'
+      name: '10x15 cm Ayaklı Masa Takvimi',
+      description: '10x15 cm ölçüsünde 12 sayfadan oluşmaktadır.',
+      price: '149,90 TL',
+      features: ['12 sayfa', 'Ayaklı tasarım', 'Kompakt boyut'],
+      image: '/images/takvim-10x15.jpg'
     }
   ]
 
   const features = [
     {
       icon: Calendar,
-      title: '12 Ay Takvim',
-      description: 'Tüm yıl boyunca kullanabileceğiniz takvimler'
+      title: 'Kişiselleştirilmiş Tasarım',
+      description: 'Kendi fotoğraflarınızla özel takvim tasarımı'
     },
     {
       icon: Image,
-      title: 'Fotoğraflı Tasarım',
-      description: 'Seçtiğiniz fotoğraflarla kişiselleştirilmiş takvimler'
+      title: 'Yüksek Kalite Baskı',
+      description: 'Profesyonel kalitede fotoğraf baskısı'
     },
     {
-      icon: Home,
-      title: 'Dekoratif',
-      description: 'Evinizin dekorasyonuna uygun şık tasarımlar'
+      icon: Shield,
+      title: 'Dayanıklı Malzeme',
+      description: 'Uzun yıllar kullanıma uygun kaliteli malzeme'
     },
     {
       icon: Gift,
-      title: 'Hediye İdeal',
-      description: 'Sevdikleriniz için mükemmel hediye seçeneği'
+      title: 'Mükemmel Hediye',
+      description: 'Sevdikleriniz için anlamlı hediye seçeneği'
     }
   ]
 
-  const designOptions = [
-    {
-      title: 'Standart Tasarım',
-      description: 'Temel takvim tasarım seçeneği',
-      price: 'Ücretsiz',
-      features: ['Hızlı işlem', 'Profesyonel görünüm', 'Kolay kullanım']
-    },
-    {
-      title: 'Özel Tasarım',
-      description: 'Tasarımcımızla birlikte özel tasarım',
-      price: '30₺',
-      features: ['Kişisel tasarım', 'Sınırsız düzenleme', 'Profesyonel sonuç']
-    },
-    {
-      title: 'Premium Tasarım',
-      description: 'Tamamen özelleştirilmiş premium tasarım',
-      price: '60₺',
-      features: ['Özel illüstrasyonlar', 'Grafik tasarım', 'Özel fontlar']
-    }
-  ]
+  const handleOrder = (productName: string) => {
+    alert(`${productName} için sipariş başlatılıyor...`);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -130,20 +93,20 @@ const Takvim = () => {
               Foto Takvim
             </h1>
             <p className="text-xl lg:text-2xl mb-8 text-green-100">
-              Fotoğraflarınızla kişiselleştirilmiş özel takvimler
+              Kişiselleştirilmiş foto takvimlerinizi oluşturun
             </p>
             <div className="flex flex-wrap justify-center gap-6 text-lg">
               <div className="flex items-center space-x-2">
                 <CheckCircle size={20} />
-                <span>12 ay takvim</span>
+                <span>Kişiselleştirilmiş tasarım</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle size={20} />
-                <span>Fotoğraflı tasarım</span>
+                <span>Yüksek kalite baskı</span>
               </div>
               <div className="flex items-center space-x-2">
                 <CheckCircle size={20} />
-                <span>Kişiselleştirilebilir</span>
+                <span>Dayanıklı malzeme</span>
               </div>
             </div>
           </motion.div>
@@ -183,10 +146,10 @@ const Takvim = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl lg:text-4xl font-light mb-4">
-              Takvim Çeşitleri
+              Foto Takvim Çeşitleri
             </h2>
             <p className="text-gray-600 text-lg">
-              İhtiyacınıza uygun takvim seçenekleri
+              İhtiyacınıza uygun foto takvim seçenekleri
             </p>
           </motion.div>
 
@@ -206,21 +169,12 @@ const Takvim = () => {
                   <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
                   <p className="text-gray-600 mb-4">{product.description}</p>
                   
-                  <div className="space-y-3">
-                    <h4 className="font-medium text-gray-800">Seçenekler ve Fiyatlar:</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {product.sizes.map((size, sizeIndex) => (
-                        <div key={sizeIndex} className="flex justify-between">
-                          <span className="text-gray-600">{size}</span>
-                          <span className="font-semibold text-green-600">
-                            {product.prices[sizeIndex]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-2xl font-bold text-green-600">{product.price}</span>
+                    <span className="text-sm text-gray-500">/ adet</span>
                   </div>
 
-                  <div className="mt-4 space-y-2">
+                  <div className="space-y-2 mb-6">
                     <h4 className="font-medium text-gray-800">Özellikler:</h4>
                     <ul className="space-y-1">
                       {product.features.map((feature, featureIndex) => (
@@ -232,8 +186,11 @@ const Takvim = () => {
                     </ul>
                   </div>
 
-                  <button className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
-                    Sipariş Ver
+                  <button 
+                    onClick={() => handleOrder(product.name)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg transition-colors font-medium"
+                  >
+                    Siparişe Başla
                   </button>
                 </div>
               </motion.div>
@@ -242,7 +199,7 @@ const Takvim = () => {
         </div>
       </section>
 
-      {/* Design Options */}
+      {/* Additional Info */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <motion.div
@@ -252,120 +209,75 @@ const Takvim = () => {
             className="text-center mb-12"
           >
             <h2 className="text-3xl lg:text-4xl font-light mb-4">
-              Tasarım Seçenekleri
+              Neden Foto Takvim?
             </h2>
             <p className="text-gray-600 text-lg">
-              Takviminiz için en uygun tasarım seçeneğini belirleyin
+              Foto takvimlerin avantajları
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {designOptions.map((option, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="bg-gray-50 rounded-lg p-6 border border-gray-200"
-              >
-                <div className="text-center mb-4">
-                  <h3 className="text-xl font-semibold mb-2">{option.title}</h3>
-                  <p className="text-gray-600 mb-4">{option.description}</p>
-                  <div className="text-2xl font-bold text-green-600 mb-4">
-                    {option.price}
-                  </div>
-                </div>
-                <ul className="space-y-2">
-                  {option.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center space-x-2 text-sm">
-                      <CheckCircle size={14} className="text-green-500" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">
-                  Seç
-                </button>
-              </motion.div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-center p-6"
+            >
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Heart className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Anılarınızı Yaşatın</h3>
+              <p className="text-gray-600">Her ay farklı fotoğraflarla özel anılarınızı hatırlayın</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-center p-6"
+            >
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Palette className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Özel Tasarım</h3>
+              <p className="text-gray-600">Kendi fotoğraflarınızla kişiselleştirilmiş takvim tasarımı</p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="text-center p-6"
+            >
+              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Truck className="text-green-600 text-2xl" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">Hızlı Teslimat</h3>
+              <p className="text-gray-600">2-3 iş günü içinde kapınızda</p>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl lg:text-4xl font-light mb-4">
-              Takvim Nasıl Hazırlanır?
-            </h2>
-            <p className="text-gray-600 text-lg">
-              4 basit adımda özel takviminizi oluşturun
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {[
-              {
-                step: '1',
-                title: 'Fotoğrafları Seçin',
-                description: 'Takviminizde kullanmak istediğiniz fotoğrafları seçin'
-              },
-              {
-                step: '2',
-                title: 'Takvim Türü Belirleyin',
-                description: 'Duvar, masa veya cep takvimi seçeneklerinden birini belirleyin'
-              },
-              {
-                step: '3',
-                title: 'Tasarım Seçin',
-                description: 'Standart, özel veya premium tasarım seçeneklerinden birini belirleyin'
-              },
-              {
-                step: '4',
-                title: 'Sipariş Verin',
-                description: 'Ödeme yapın ve takviminizi bekleyin'
-              }
-            ].map((item, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                className="text-center"
-              >
-                <div className="bg-green-600 text-white w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                  {item.step}
-                </div>
-                <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="py-16 bg-gradient-to-r from-primary-600 to-primary-700 text-white">
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-green-500 to-green-600">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl lg:text-4xl font-light mb-4">
-              Yeni Yıla Özel Takviminizle Başlayın
+            <h2 className="text-3xl lg:text-4xl font-light text-white mb-4">
+              Hemen Sipariş Verin
             </h2>
-            <p className="text-xl mb-8 text-primary-100">
-              Özel tasarım takviminizi hemen sipariş edin
+            <p className="text-xl text-green-100 mb-8">
+              Sevdikleriniz için özel foto takvimlerinizi oluşturun
             </p>
-            <button className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-medium transition-colors">
-              Takvim Oluştur
+            <button 
+              onClick={() => handleOrder('Foto Takvim')}
+              className="bg-white text-green-600 font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            >
+              Siparişe Başla
             </button>
           </motion.div>
         </div>
@@ -373,7 +285,7 @@ const Takvim = () => {
 
       <Footer />
     </div>
-  )
+  );
 }
 
-export default Takvim 
+export default Takvim; 

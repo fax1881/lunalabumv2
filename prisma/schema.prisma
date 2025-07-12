@@ -6,23 +6,11 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-model Order {
-  id           Int      @id @default(autoincrement())
-  tarih        DateTime @default(now())
-  urun         String
-  adet         Int
-  adres        String
-  referans     String
-  odeme        Boolean  @default(false)
-  kargo        String?
 }
 
 model User {
@@ -33,6 +21,8 @@ model User {
   role      String   @default("user")
   createdAt DateTime @default(now())
   addresses Address[]
+  orders    Order[]
+  cartItems CartItem[]
 }
 
 model Address {
@@ -54,5 +44,85 @@ model Product {
   price       Float
   image       String?
   category    String?
+  subcategory String?
+  sizes       String[] // JSON array olarak saklanacak
+  prices      String[] // JSON array olarak saklanacak
+  features    String[] // JSON array olarak saklanacak
+  inStock     Boolean  @default(true)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  quantity  Int      @default(1)
+  size      String?
+  price     Float
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  orderNumber  String      @unique
+  tarih        DateTime    @default(now())
+  status       String      @default("pending") // pending, processing, shipped, delivered, cancelled
+  totalAmount  Float
+  shippingCost Float       @default(0)
+  taxAmount    Float       @default(0)
+  adres        String
+  referans     String?
+  odeme        Boolean     @default(false)
+  kargo        String?
+  trackingNumber String?
+  userId       Int
+  user         User        @relation(fields: [userId], references: [id])
+  orderItems   OrderItem[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  size      String?
+  price     Float
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+model SiteSettings {
+  id                Int      @id @default(autoincrement())
+  siteName          String   @default("Luna Lab")
+  siteDescription   String?  @default("Kişiselleştirilmiş ürünler")
+  logo              String?
+  favicon           String?
+  primaryColor      String   @default("#1f2937")
+  secondaryColor    String   @default("#3b82f6")
+  contactEmail      String?  @default("info@lunalab.com")
+  contactPhone      String?
+  contactAddress    String?
+  socialFacebook    String?
+  socialInstagram   String?
+  socialTwitter     String?
+  socialYoutube     String?
+  aboutText         String?  @default("Hakkımızda metni buraya gelecek")
+  privacyPolicy     String?  @default("Gizlilik politikası metni buraya gelecek")
+  termsOfService    String?  @default("Kullanım şartları metni buraya gelecek")
+  shippingInfo      String?  @default("Kargo bilgileri buraya gelecek")
+  returnPolicy      String?  @default("İade politikası buraya gelecek")
+  faqContent        String?  @default("Sık sorulan sorular buraya gelecek")
+  maintenanceMode   Boolean  @default(false)
+  maintenanceMessage String? @default("Site bakımda, lütfen daha sonra tekrar deneyin")
+  googleAnalytics   String?
+  facebookPixel     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

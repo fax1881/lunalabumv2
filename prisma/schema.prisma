@@ -9,7 +9,7 @@ generator client {
 // Local development: SQLite (fast, zero-config)
 // Production: PostgreSQL (Vercel Postgres, Supabase, etc.)
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

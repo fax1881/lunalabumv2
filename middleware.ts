@@ -1,18 +1,32 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from './lib/auth';
+import { verifyTokenEdge } from './lib/auth';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isDev = process.env.NODE_ENV === 'development';
 
-  // Debug log: print token value
-  console.log('Middleware token:', request.cookies.get('token')?.value);
+  // Debug: JWT Secret kontrolü
+  if (isDev && pathname === '/profil') {
+    console.log('[Middleware] JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    console.log('[Middleware] JWT_SECRET length:', process.env.JWT_SECRET?.length || 0);
+  }
+
+  // Debug log: print current path and token
+  if (isDev) {
+    console.log(`[Middleware] Path: ${pathname}`);
+    console.log(`[Middleware] Token:`, request.cookies.get('token')?.value ? 'EXISTS' : 'MISSING');
+  }
 
   // Protected routes that require authentication
   const protectedRoutes = [
     '/profil',
     '/admin',
-    '/sepet'
+    '/sepet',
+    '/hesap',
+    '/siparislerim',
+    '/profil/siparislerim',
+    '/sepet/checkout'
   ];
 
   // Check if the current path is protected
@@ -21,26 +35,42 @@ export function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute) {
+    if (isDev) console.log(`[Middleware] Protected route detected: ${pathname}`);
+    
     // Get token from cookie
     const token = request.cookies.get('token')?.value;
 
     if (!token) {
+      if (isDev) console.log('[Middleware] No token found, redirecting to login');
       // Redirect to login if no token
       return NextResponse.redirect(new URL('/giris', request.url));
     }
 
-    // Verify token
-    const payload = verifyToken(token);
+    if (isDev) console.log('[Middleware] Token found, attempting verification...');
 
-    if (!payload) {
-      // Redirect to login if invalid token
+    // Verify token with Edge Runtime compatible function
+    try {
+      const payload = await verifyTokenEdge(token);
+      
+      if (!payload) {
+        if (isDev) console.log('[Middleware] Token verification FAILED, redirecting to login');
+        // Redirect to login if invalid token
+        return NextResponse.redirect(new URL('/giris', request.url));
+      }
+
+      if (isDev) console.log(`[Middleware] Token verification SUCCESS for user: ${payload.email}, role: ${payload.role}`);
+
+      // For admin routes, check if user has admin role
+      if (pathname.startsWith('/admin') && payload.role !== 'admin') {
+        if (isDev) console.log('[Middleware] Non-admin user trying to access admin, redirecting to home');
+        // Redirect to home if not admin
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+
+      if (isDev) console.log(`[Middleware] Access GRANTED to ${pathname}`);
+    } catch (error) {
+      if (isDev) console.log('[Middleware] Token verification ERROR:', error);
       return NextResponse.redirect(new URL('/giris', request.url));
-    }
-
-    // For admin routes, check if user has admin role
-    if (pathname.startsWith('/admin') && payload.role !== 'admin') {
-      // Redirect to home if not admin
-      return NextResponse.redirect(new URL('/', request.url));
     }
   }
 
@@ -52,10 +82,15 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
 
     if (token) {
-      const payload = verifyToken(token);
-      if (payload) {
-        // Redirect to home if already authenticated
-        return NextResponse.redirect(new URL('/', request.url));
+      try {
+        const payload = await verifyTokenEdge(token);
+        if (payload) {
+          if (isDev) console.log('[Middleware] Already authenticated user accessing auth route, redirecting to home');
+          // Redirect to home if already authenticated
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+      } catch (error) {
+        // Token invalid, continue to auth page
       }
     }
   }

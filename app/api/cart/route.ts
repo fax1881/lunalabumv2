@@ -29,7 +29,15 @@ export async function GET(req: NextRequest) {
 
     const cart = await prisma.cartItem.findMany({
       where: { userId: payload.userId },
-      include: { product: true }
+      include: { 
+        product: true,
+        design: {
+          include: {
+            template: true,
+            frameSize: true
+          }
+        }
+      }
     });
     return NextResponse.json(cart);
   } catch (error) {
@@ -64,16 +72,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { productId, quantity, size, price } = await req.json();
+    const { productId, designId, quantity, size, price } = await req.json();
     
-    if (!productId || !price) {
+    if ((!productId && !designId) || !price) {
       return NextResponse.json(
-        { error: 'Eksik bilgi' },
+        { error: 'Eksik bilgi (productId veya designId ve price gerekli)' },
         { status: 400 }
       );
     }
 
-    // Aynı ürün ve boyut varsa miktarı güncelle
+    // Design için sepete ekleme
+    if (designId) {
+      const cartItem = await prisma.cartItem.create({
+        data: {
+          userId: payload.userId,
+          designId: parseInt(designId),
+          quantity: quantity || 1,
+          price: parseFloat(price)
+        },
+        include: {
+          design: {
+            include: {
+              template: true,
+              frameSize: true
+            }
+          }
+        }
+      });
+
+      return NextResponse.json({
+        success: true,
+        cartItem,
+        message: 'Tasarım sepete eklendi'
+      });
+    }
+
+    // Normal ürün için sepete ekleme (eski kod)
     const existing = await prisma.cartItem.findFirst({
       where: { 
         userId: payload.userId, 

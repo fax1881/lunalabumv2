@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import Link from 'next/link'
 
 const Canvas = () => {
   const products = [
@@ -232,9 +233,12 @@ const Canvas = () => {
                     </ul>
                   </div>
 
-                  <button className="w-full mt-6 bg-accent-600 hover:bg-accent-700 text-white py-3 px-4 rounded-lg transition-colors font-medium">
+                  <Link 
+                    href={`/canvas/editor?product=${product.id}`}
+                    className="w-full mt-6 bg-accent-600 hover:bg-accent-700 text-white py-3 px-4 rounded-lg transition-colors font-medium block text-center"
+                  >
                     Sipariş Ver
-                  </button>
+                  </Link>
                 </div>
               </motion.div>
             ))}
@@ -283,9 +287,12 @@ const Canvas = () => {
                     </li>
                   ))}
                 </ul>
-                <button className="w-full mt-6 bg-accent-600 hover:bg-accent-700 text-white py-2 px-4 rounded-lg transition-colors font-medium">
+                <Link 
+                  href={`/canvas/editor?type=${option.title.toLowerCase().replace(' ', '-')}`}
+                  className="w-full mt-6 bg-accent-600 hover:bg-accent-700 text-white py-2 px-4 rounded-lg transition-colors font-medium block text-center"
+                >
                   Seç
-                </button>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -364,9 +371,12 @@ const Canvas = () => {
             <p className="text-xl mb-8 text-primary-100">
               Özel canvas tablonuzu hemen sipariş edin
             </p>
-            <button className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-medium transition-colors">
+            <Link 
+              href="/canvas/editor"
+              className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-medium transition-colors"
+            >
               Canvas Tablo Oluştur
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>

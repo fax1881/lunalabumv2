@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '../../../../lib/auth';
 
 const prisma = new PrismaClient();
-
-const JWT_SECRET = process.env.JWT_SECRET as string;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -19,15 +14,15 @@ export async function GET(req: NextRequest) {
     }
 
     // Token'ı doğrula
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const payload = verifyToken(token);
     
-    if (!decoded || !decoded.id) {
+    if (!payload) {
       return NextResponse.json({ isAdmin: false, error: 'Geçersiz token' }, { status: 401 });
     }
 
     // Kullanıcıyı veritabanından kontrol et
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
+      where: { id: payload.userId },
       select: { id: true, email: true, role: true }
     });
 

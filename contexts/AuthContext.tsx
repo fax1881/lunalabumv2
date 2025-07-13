@@ -71,6 +71,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (response.ok) {
         setUser(data.user);
+        // Auth state'ini yeniden kontrol et
+        await checkAuth();
         return true;
       } else {
         throw new Error(data.error || 'Giriş başarısız');

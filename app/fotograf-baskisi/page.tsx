@@ -212,12 +212,12 @@ const FotografBaskisi = () => {
                   </div>
 
                   <div className="mt-4 flex justify-center">
-                    <a
+                    <Link
                       href={`/fotograf-baskisi/editor?product=${product.id}`}
                       className="btn-primary px-6 py-2 text-white rounded shadow hover:bg-primary-700 transition-colors"
                     >
                       Sipariş Ver
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </motion.div>
@@ -457,12 +457,12 @@ const FotografBaskisi = () => {
             <p className="text-xl mb-8 text-secondary-100">
               Hemen sipariş verin, aynı gün kargoda
             </p>
-            <button
+            <Link
+              href="/fotograf-baskisi/editor"
               className="bg-white text-secondary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-medium transition-colors"
-              onClick={() => window.open('https://www.netbaski.com/printing/fotograf-baski/10x15/editor?ws=b2867f6e320a1c379b6094e05ff92e63&q=1&oq=0', '_blank')}
             >
               Siparişe Başla
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>

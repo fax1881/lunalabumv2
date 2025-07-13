@@ -11,7 +11,8 @@ import {
   Settings,
   BarChart3,
   FileText,
-  DollarSign
+  DollarSign,
+  Layers
 } from 'lucide-react';
 
 interface DashboardStats {
@@ -64,6 +65,13 @@ export default function AdminDashboard() {
       href: '/admin/siparisler',
       color: 'bg-blue-500',
       count: stats.pendingOrders
+    },
+    {
+      title: 'Şablon Yönetimi',
+      description: 'Tasarım editörü şablonları',
+      icon: Layers,
+      href: '/admin/sablonlar',
+      color: 'bg-indigo-500'
     },
     {
       title: 'Ürün Yönetimi',

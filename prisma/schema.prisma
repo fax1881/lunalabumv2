@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -23,6 +23,7 @@ model User {
   addresses Address[]
   orders    Order[]
   cartItems CartItem[]
+  designs   Design[]
 }
 
 model Address {
@@ -45,9 +46,9 @@ model Product {
   image       String?
   category    String?
   subcategory String?
-  sizes       String[] // JSON array olarak saklanacak
-  prices      String[] // JSON array olarak saklanacak
-  features    String[] // JSON array olarak saklanacak
+  sizes       String? // JSON string olarak saklanacak
+  prices      String? // JSON string olarak saklanacak
+  features    String? // JSON string olarak saklanacak
   inStock     Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -58,13 +59,15 @@ model Product {
 model CartItem {
   id        Int      @id @default(autoincrement())
   userId    Int
-  productId Int
+  productId Int?     // opsiyonel: normal ürünler için
+  designId  Int?     // opsiyonel: tasarım ürünleri için
   quantity  Int      @default(1)
   size      String?
   price     Float
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product? @relation(fields: [productId], references: [id])
+  design    Design?  @relation(fields: [designId], references: [id])
 }
 
 model Order {
@@ -91,11 +94,13 @@ model OrderItem {
   id        Int      @id @default(autoincrement())
   orderId   Int
   productId Int
+  designId  Int?     // opsiyonel: tasarım ürünleri için
   quantity  Int
   size      String?
   price     Float
   order     Order    @relation(fields: [orderId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
+  design    Design?  @relation(fields: [designId], references: [id])
 }
 
 model SiteSettings {
@@ -125,4 +130,102 @@ model SiteSettings {
   facebookPixel     String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+// TASARIM EDİTÖRÜ TABLOLARI
+
+model Template {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  category    String   // fotograf-baskisi, canvas, fotokitap, etc.
+  thumbnail   String
+  width       Int
+  height      Int
+  isActive    Boolean  @default(true)
+  isPremium   Boolean  @default(false)
+  price       Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  elements    TemplateElement[]
+  designs     Design[]
+}
+
+model TemplateElement {
+  id          Int      @id @default(autoincrement())
+  templateId  Int
+  template    Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  type        String   // text, image, shape, background
+  x           Float
+  y           Float
+  width       Float
+  height      Float
+  rotation    Float    @default(0)
+  zIndex      Int      @default(0)
+  properties  String   // JSON: {text, fontSize, color, imageSrc, etc.}
+  isLocked    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model FrameSize {
+  id          Int      @id @default(autoincrement())
+  category    String   // fotograf-baskisi, canvas, etc.
+  name        String   // 10x15 cm, 20x30 cm, etc.
+  width       Int      // mm cinsinden
+  height      Int      // mm cinsinden
+  price       Float
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  designs     Design[]
+}
+
+model ProductOption {
+  id          Int      @id @default(autoincrement())
+  category    String   // hangi kategori için
+  name        String   // Mat/Parlak, Çerçeve Tipi, etc.
+  type        String   // select, radio, checkbox
+  options     String   // JSON: [{value, label, price}]
+  isRequired  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Design {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  templateId   Int?
+  template     Template? @relation(fields: [templateId], references: [id])
+  frameSizeId  Int?
+  frameSize    FrameSize? @relation(fields: [frameSizeId], references: [id])
+  name         String
+  category     String
+  width        Int
+  height       Int
+  preview      String?  // base64 preview image
+  data         String   // JSON: complete design data
+  isCompleted  Boolean  @default(false)
+  totalPrice   Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  elements     DesignElement[]
+  orderItems   OrderItem[]
+  cartItems    CartItem[]
+}
+
+model DesignElement {
+  id          Int      @id @default(autoincrement())
+  designId    Int
+  design      Design   @relation(fields: [designId], references: [id], onDelete: Cascade)
+  type        String   // text, image, shape, background
+  x           Float
+  y           Float
+  width       Float
+  height      Float
+  rotation    Float    @default(0)
+  zIndex      Int      @default(0)
+  properties  String   // JSON: element properties
+  createdAt   DateTime @default(now())
 }

@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
-import type { JwtPayload } from 'jsonwebtoken';
+import { verifyToken } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
-
-// JWT_SECRET environment variable'ı zorunlu
-const JWT_SECRET = process.env.JWT_SECRET as string;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,10 +10,8 @@ export async function POST(req: NextRequest) {
     const token = req.cookies.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
     
-    let userData: JwtPayload;
-    try {
-      userData = jwt.verify(token, JWT_SECRET) as JwtPayload;
-    } catch {
+    const payload = verifyToken(token);
+    if (!payload) {
       return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
     }
 
@@ -47,20 +38,32 @@ export async function POST(req: NextRequest) {
 
     // Referans numarası üret
     const referans = Math.random().toString(36).substring(2, 10).toUpperCase();
-
-    // Siparişi oluştur
+    
+    // Sipariş oluştur
     const siparis = await prisma.order.create({
       data: {
-        orderNumber: referans, // referans kodunu orderNumber olarak kullan
-        totalAmount: typeof adet === 'number' ? adet * 1 : 0, // ürün fiyatı yoksa 1 ile çarp
+        userId: payload.userId,
+        orderNumber: referans,
         adres: adres.trim(),
-        userId: userData.id as number
+        totalAmount: adet * 100, // Fiyat hesaplama örneği
+        status: 'Hazırlanıyor',
+        orderItems: {
+          create: [{
+            productId: 1, // Ürün ID'si gerçek sistemde dinamik olmalı
+            quantity: adet,
+            price: 100 // Gerçek fiyat
+          }]
+        }
       }
     });
 
-    return NextResponse.json(siparis);
+    return NextResponse.json({ 
+      message: 'Sipariş başarıyla oluşturuldu!', 
+      siparis: { ...siparis, referans }
+    });
+
   } catch (error) {
-    console.error('Order creation error:', error);
-    return NextResponse.json({ error: 'Sunucu hatası.' }, { status: 500 });
+    console.error('Sipariş oluşturma hatası:', error);
+    return NextResponse.json({ error: 'Sipariş oluşturulurken hata oluştu.' }, { status: 500 });
   }
 } 

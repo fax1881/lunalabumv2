@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { comparePassword, generateToken } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
-
-// JWT_SECRET environment variable'ı zorunlu
-const JWT_SECRET = process.env.JWT_SECRET as string;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,13 +29,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Kullanıcı bulunamadı.' }, { status: 404 });
     }
     
-    const valid = await bcrypt.compare(password, user.password);
+    const valid = await comparePassword(password, user.password);
     if (!valid) {
       return NextResponse.json({ error: 'Şifre yanlış.' }, { status: 401 });
     }
     
     // JWT token oluştur
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = generateToken({ 
+      userId: user.id, 
+      email: user.email, 
+      role: user.role 
+    });
     
     // Şifreyi response'dan çıkar
     const { password: _, ...userSafe } = user;
@@ -51,15 +48,15 @@ export async function POST(req: NextRequest) {
     const response = NextResponse.json(userSafe);
     response.cookies.set('token', token, { 
       httpOnly: true, 
-      path: '/', 
-      maxAge: 60 * 60 * 24 * 7,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 gün
+      path: '/'
     });
     
     return response;
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Giris error:', error);
     return NextResponse.json({ error: 'Sunucu hatası.' }, { status: 500 });
   }
 } 

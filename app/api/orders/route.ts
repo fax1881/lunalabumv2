@@ -4,6 +4,9 @@ import { verifyToken } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Kullanıcının siparişlerini getir
 export async function GET(req: NextRequest) {
   try {

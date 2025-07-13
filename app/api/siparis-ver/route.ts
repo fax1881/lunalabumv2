@@ -4,6 +4,9 @@ import { verifyToken } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     // Kullanıcıyı JWT ile doğrula

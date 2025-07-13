@@ -2,7 +2,14 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { jwtVerify, SignJWT } from 'jose';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+// Lazy getter for JWT_SECRET to avoid build-time errors
+const getJWTSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+};
 
 export interface JWTPayload {
   userId: number;
@@ -11,6 +18,7 @@ export interface JWTPayload {
 }
 
 export const generateToken = (payload: JWTPayload): string => {
+  const JWT_SECRET = getJWTSecret();
   const isDev = process.env.NODE_ENV === 'development';
   if (isDev) {
     console.log('[Auth] Generating token with JWT_SECRET length:', JWT_SECRET.length);
@@ -28,6 +36,7 @@ export const generateToken = (payload: JWTPayload): string => {
 
 export const verifyToken = (token: string): JWTPayload | null => {
   try {
+    const JWT_SECRET = getJWTSecret();
     const isDev = process.env.NODE_ENV === 'development';
     if (isDev) {
       console.log('[Auth] Verifying token with JWT_SECRET length:', JWT_SECRET.length);
@@ -53,6 +62,7 @@ export const verifyToken = (token: string): JWTPayload | null => {
 // Edge Runtime compatible JWT verification for middleware
 export const verifyTokenEdge = async (token: string): Promise<JWTPayload | null> => {
   try {
+    const JWT_SECRET = getJWTSecret();
     const isDev = process.env.NODE_ENV === 'development';
     if (isDev) {
       console.log('[Auth Edge] Verifying token with JWT_SECRET length:', JWT_SECRET.length);

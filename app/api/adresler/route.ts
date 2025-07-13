@@ -5,11 +5,14 @@ import type { JwtPayload } from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
-// JWT_SECRET environment variable'ı zorunlu
-const JWT_SECRET = process.env.JWT_SECRET as string;
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
+// Lazy getter for JWT_SECRET to avoid build-time errors
+const getJWTSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+};
 
 // Adresleri listele
 export async function GET(req: NextRequest) {
@@ -19,7 +22,7 @@ export async function GET(req: NextRequest) {
     
     let userData: JwtPayload;
     try {
-      userData = jwt.verify(token, JWT_SECRET) as JwtPayload;
+      userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
     } catch {
       return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
     }
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
   let userData: JwtPayload;
   try {
-    userData = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
   } catch {
     return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
   }
@@ -70,7 +73,7 @@ export async function DELETE(req: NextRequest) {
   if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
   let userData: JwtPayload;
   try {
-    userData = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
   } catch {
     return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
   }

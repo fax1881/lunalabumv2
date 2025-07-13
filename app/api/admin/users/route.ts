@@ -3,7 +3,15 @@ import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET!;
+
+// Lazy getter for JWT_SECRET to avoid build-time errors
+const getJWTSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return secret;
+};
 
 // Admin kullanıcı listesini getir
 export async function GET(request: NextRequest) {
@@ -14,7 +22,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJWTSecret()) as any;
     if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json({ error: 'Admin yetkisi gerekli' }, { status: 403 });
     }
@@ -55,7 +63,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Yetkilendirme gerekli' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    const decoded = jwt.verify(token, getJWTSecret()) as any;
     if (!decoded || decoded.role !== 'admin') {
       return NextResponse.json({ error: 'Admin yetkisi gerekli' }, { status: 403 });
     }

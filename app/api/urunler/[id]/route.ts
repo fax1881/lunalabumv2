@@ -42,8 +42,8 @@ export async function GET(
         '/images/photo-print-3.jpg',
         '/images/photo-print-4.jpg'
       ],
-      sizes: product.sizes.length > 0 ? product.sizes : ['10x15 cm', '13x18 cm', '15x21 cm', '20x30 cm'],
-      features: product.features.length > 0 ? product.features : [
+      sizes: product.sizes && product.sizes.length > 0 ? product.sizes : ['10x15 cm', '13x18 cm', '15x21 cm', '20x30 cm'],
+      features: product.features && product.features.length > 0 ? product.features : [
         'Yüksek çözünürlüklü baskı',
         'Su geçirmez kağıt',
         'UV korumalı',

@@ -100,12 +100,14 @@ export async function POST(req: NextRequest) {
         adres,
         totalAmount,
         orderItems: {
-          create: cartItems.map(item => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            size: item.size,
-            price: item.price
-          }))
+          create: cartItems
+            .filter(item => item.productId !== null) // Sadece normal ürünleri al
+            .map(item => ({
+              productId: item.productId!,
+              quantity: item.quantity,
+              size: item.size,
+              price: item.price
+            }))
         }
       },
       include: { orderItems: true }

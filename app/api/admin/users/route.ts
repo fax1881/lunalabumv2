@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
+// Force dynamic rendering  
+export const dynamic = 'force-dynamic';
+
 // Lazy getter for JWT_SECRET to avoid build-time errors
 const getJWTSecret = (): string => {
   const secret = process.env.JWT_SECRET;

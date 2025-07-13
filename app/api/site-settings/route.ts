@@ -13,6 +13,9 @@ const getJWTSecret = (): string => {
   return secret;
 };
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Site ayarlarını getir
 export async function GET() {
   try {

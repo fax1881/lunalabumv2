@@ -1,14 +1,25 @@
 # Vercel Environment Variables Kurulum Rehberi
 
-## Vercel Dashboard'da Ayarlanması Gereken Environment Variables
+## 🚨 DEPLOYMENT ÖNCESİ ZORUNLU ADIMLAR
 
-### 1. Database Configuration
+### ⚠️ KRİTİK: Environment Variables Ayarlanmalı
+Vercel Dashboard'da bu environment variables'lar **MUTLAKA** ayarlanmalı:
+
+### 1. Database Configuration (ZORUNLU)
 ```
 DATABASE_URL = postgresql://username:password@hostname:port/database?schema=public
 ```
-**Notlar:**
-- Vercel Postgres, Supabase, PlanetScale, Railway vb. kullanabilirsiniz
-- SSL bağlantısı gerekli: `?sslmode=require` ekleyin
+**⚠️ UYARI:** Bu değer ayarlanmazsa deployment başarısız olur!
+
+**Veritabanı Seçenekleri:**
+- Vercel Postgres (Önerilen) 
+- Supabase PostgreSQL
+- PlanetScale (MySQL ama PostgreSQL syntax kullanın)
+- Railway PostgreSQL
+- Neon PostgreSQL
+
+**SSL Bağlantısı Zorunlu:**
+- URL sonuna `?sslmode=require` ekleyin
 - Örnek: `postgresql://user:pass@db.vercel-storage.com:5432/verceldb?sslmode=require`
 
 ### 2. JWT Secret

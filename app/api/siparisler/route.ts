@@ -3,6 +3,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 // Siparişleri listele
 export async function GET() {
   const orders = await prisma.order.findMany({ orderBy: { tarih: 'desc' } });

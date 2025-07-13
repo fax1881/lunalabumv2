@@ -9,6 +9,8 @@ const nextConfig = {
     // Server-side rendering optimizasyonu
     serverComponentsExternalPackages: ['@prisma/client'],
   },
+  // API routes should not be statically exported
+  output: 'standalone',
   async headers() {
     return [
       {

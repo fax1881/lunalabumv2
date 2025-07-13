@@ -4,6 +4,9 @@ import { verifyToken } from '../../../lib/auth';
 
 const prisma = new PrismaClient();
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     // Cookie'den token'ı al

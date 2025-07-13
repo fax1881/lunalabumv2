@@ -59,85 +59,17 @@ export default function AdminOrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      // Mock veriler - gerçek uygulamada API'den gelecek
-      const mockOrders: Order[] = [
-        {
-          id: 1,
-          orderNumber: 'ORD-1703123456789',
-          userId: 1,
-          user: { name: 'Ahmet Yılmaz', email: 'ahmet@example.com' },
-          adres: 'İstanbul, Kadıköy, Örnek Mahallesi No:123',
-          totalAmount: 245.50,
-          status: 'Hazırlanıyor',
-          createdAt: '2024-01-15T10:30:00Z',
-          orderItems: [
-            {
-              id: 1,
-              productId: 1,
-              quantity: 2,
-              size: 'A4',
-              price: 122.75,
-              product: {
-                id: 1,
-                name: 'Fotoğraf Baskısı',
-                image: '/images/photo-print.jpg'
-              }
-            }
-          ]
-        },
-        {
-          id: 2,
-          orderNumber: 'ORD-1703123456790',
-          userId: 2,
-          user: { name: 'Ayşe Demir', email: 'ayse@example.com' },
-          adres: 'Ankara, Çankaya, Test Sokak No:456',
-          totalAmount: 189.00,
-          status: 'Kargoda',
-          createdAt: '2024-01-14T15:45:00Z',
-          orderItems: [
-            {
-              id: 2,
-              productId: 2,
-              quantity: 1,
-              size: '20x30',
-              price: 189.00,
-              product: {
-                id: 2,
-                name: 'Canvas Tablo',
-                image: '/images/canvas.jpg'
-              }
-            }
-          ]
-        },
-        {
-          id: 3,
-          orderNumber: 'ORD-1703123456791',
-          userId: 3,
-          user: { name: 'Mehmet Kaya', email: 'mehmet@example.com' },
-          adres: 'İzmir, Konak, Örnek Cadde No:789',
-          totalAmount: 320.00,
-          status: 'Teslim Edildi',
-          createdAt: '2024-01-13T09:15:00Z',
-          orderItems: [
-            {
-              id: 3,
-              productId: 3,
-              quantity: 3,
-              size: 'A3',
-              price: 106.67,
-              product: {
-                id: 3,
-                name: 'Foto Takvim',
-                image: '/images/calendar.jpg'
-              }
-            }
-          ]
-        }
-      ];
-      
-      setOrders(mockOrders);
+      const response = await fetch('/api/admin/orders');
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data);
+      } else {
+        console.error('Orders fetch failed:', response.status);
+        setOrders([]);
+      }
     } catch (error) {
       console.error('Orders fetch error:', error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -145,12 +77,24 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
-      // Mock API call - gerçek uygulamada API'ye gönderilecek
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      ));
-      setShowStatusModal(false);
-      setSelectedOrder(null);
+      const response = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId, status: newStatus }),
+      });
+
+      if (response.ok) {
+        const updatedOrder = await response.json();
+        setOrders(orders.map(order => 
+          order.id === orderId ? updatedOrder : order
+        ));
+        setShowStatusModal(false);
+        setSelectedOrder(null);
+      } else {
+        console.error('Status update failed:', response.status);
+      }
     } catch (error) {
       console.error('Status update error:', error);
     }

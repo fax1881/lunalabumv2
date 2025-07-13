@@ -45,68 +45,17 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      // Mock veriler - gerçek uygulamada API'den gelecek
-      const mockUsers: User[] = [
-        {
-          id: 1,
-          name: 'Ahmet Yılmaz',
-          email: 'ahmet@example.com',
-          role: 'user',
-          isActive: true,
-          createdAt: '2024-01-10T10:00:00Z',
-          lastLogin: '2024-01-15T14:30:00Z',
-          orderCount: 5,
-          totalSpent: 1250.50
-        },
-        {
-          id: 2,
-          name: 'Ayşe Demir',
-          email: 'ayse@example.com',
-          role: 'user',
-          isActive: true,
-          createdAt: '2024-01-12T14:30:00Z',
-          lastLogin: '2024-01-14T09:15:00Z',
-          orderCount: 3,
-          totalSpent: 890.00
-        },
-        {
-          id: 3,
-          name: 'Mehmet Kaya',
-          email: 'mehmet@example.com',
-          role: 'admin',
-          isActive: true,
-          createdAt: '2024-01-08T16:45:00Z',
-          lastLogin: '2024-01-15T11:20:00Z',
-          orderCount: 0,
-          totalSpent: 0
-        },
-        {
-          id: 4,
-          name: 'Fatma Özkan',
-          email: 'fatma@example.com',
-          role: 'user',
-          isActive: false,
-          createdAt: '2024-01-05T12:00:00Z',
-          lastLogin: '2024-01-10T15:45:00Z',
-          orderCount: 1,
-          totalSpent: 189.00
-        },
-        {
-          id: 5,
-          name: 'Ali Çelik',
-          email: 'ali@example.com',
-          role: 'user',
-          isActive: true,
-          createdAt: '2024-01-15T08:30:00Z',
-          lastLogin: '2024-01-15T16:10:00Z',
-          orderCount: 2,
-          totalSpent: 456.75
-        }
-      ];
-      
-      setUsers(mockUsers);
+      const response = await fetch('/api/admin/users');
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      } else {
+        console.error('Users fetch failed:', response.status);
+        setUsers([]);
+      }
     } catch (error) {
       console.error('Users fetch error:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }

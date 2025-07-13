@@ -41,17 +41,33 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      // Mock veriler - gerçek uygulamada API'den gelecek
-      setStats({
-        totalOrders: 156,
-        totalUsers: 89,
-        totalProducts: 24,
-        totalRevenue: 45678.50,
-        pendingOrders: 23,
-        completedOrders: 133
-      });
+      const response = await fetch('/api/admin/dashboard-stats');
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      } else {
+        console.error('Dashboard stats fetch failed');
+        // Fallback mock data
+        setStats({
+          totalOrders: 0,
+          totalUsers: 0,
+          totalProducts: 0,
+          totalRevenue: 0,
+          pendingOrders: 0,
+          completedOrders: 0
+        });
+      }
     } catch (error) {
       console.error('Dashboard stats error:', error);
+      // Fallback mock data
+      setStats({
+        totalOrders: 0,
+        totalUsers: 0,
+        totalProducts: 0,
+        totalRevenue: 0,
+        pendingOrders: 0,
+        completedOrders: 0
+      });
     } finally {
       setLoading(false);
     }

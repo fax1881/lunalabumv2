@@ -35,10 +35,12 @@ export async function GET(request: NextRequest) {
         email: true,
         role: true,
         createdAt: true,
-        _count: {
+        orders: {
           select: {
-            orders: true,
-            addresses: true
+            id: true,
+            totalAmount: true,
+            status: true,
+            createdAt: true
           }
         }
       },
@@ -47,7 +49,22 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json(users);
+    // Kullanıcı istatistiklerini hesapla
+    const usersWithStats = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: true,
+      createdAt: user.createdAt.toISOString(),
+      lastLogin: user.orders.length > 0 
+        ? user.orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].createdAt.toISOString()
+        : user.createdAt.toISOString(),
+      orderCount: user.orders.length,
+      totalSpent: user.orders.reduce((sum: number, order: any) => sum + order.totalAmount, 0)
+    }));
+
+    return NextResponse.json(usersWithStats);
   } catch (error) {
     console.error('Admin users GET error:', error);
     return NextResponse.json({ error: 'Kullanıcılar alınamadı' }, { status: 500 });

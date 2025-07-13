@@ -6,7 +6,18 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:setup": "node scripts/setup-db.js",
+    "db:switch": "node scripts/switch-db.js",
+    "db:sqlite": "node scripts/switch-db.js sqlite",
+    "db:postgresql": "node scripts/switch-db.js postgresql",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:prod": "prisma migrate deploy", 
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:seed": "prisma db seed",
+    "db:reset": "prisma migrate reset",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.3.1",

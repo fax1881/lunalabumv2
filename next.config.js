@@ -3,6 +3,12 @@ const nextConfig = {
   images: {
     domains: ['via.placeholder.com', 'images.unsplash.com'],
   },
+  // Port mismatch sorununu çözmek için
+  assetPrefix: process.env.NODE_ENV === 'development' ? undefined : '',
+  experimental: {
+    // Server-side rendering optimizasyonu
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
   async headers() {
     return [
       {

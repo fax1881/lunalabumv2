@@ -7,13 +7,13 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "ts-node --compiler-options \"{\"module\":\"CommonJS\"}\" prisma/seed.ts",
+    "seed": "npm run db:seed",
     "db:setup": "node scripts/setup-db.js",
     "db:switch": "node scripts/switch-db.js",
     "db:sqlite": "node scripts/switch-db.js sqlite",
     "db:postgresql": "node scripts/switch-db.js postgresql",
     "db:migrate": "prisma migrate dev",
-    "db:migrate:prod": "prisma migrate deploy", 
+    "db:migrate:prod": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
@@ -56,9 +56,11 @@
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "prisma": "^6.11.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   },
   "prisma": {
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "seed": "ts-node-esm prisma/seed.ts"
   }
 }

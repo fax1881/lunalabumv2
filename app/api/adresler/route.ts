@@ -23,15 +23,15 @@ export async function GET(req: NextRequest) {
     const token = req.cookies.get('token')?.value;
     if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
     
-    let userData: JwtPayload;
+    let userData: any;
     try {
-      userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
+      userData = jwt.verify(token, getJWTSecret()) as any;
     } catch {
       return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
     }
     
     const user = await prisma.user.findUnique({ 
-      where: { id: userData.id as number }, 
+      where: { id: userData.userId as number }, 
       include: { addresses: true } 
     });
     
@@ -47,9 +47,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
-  let userData: JwtPayload;
+  let userData: any;
   try {
-    userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
+    userData = jwt.verify(token, getJWTSecret()) as any;
   } catch {
     return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
   }
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   }
   const newAddress = await prisma.address.create({
     data: {
-      userId: Number(userData.id),
+      userId: Number(userData.userId),
       ad,
       adres,
       il,
@@ -74,9 +74,9 @@ export async function POST(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   const token = req.cookies.get('token')?.value;
   if (!token) return NextResponse.json({ error: 'Giriş yapmalısınız.' }, { status: 401 });
-  let userData: JwtPayload;
+  let userData: any;
   try {
-    userData = jwt.verify(token, getJWTSecret()) as JwtPayload;
+    userData = jwt.verify(token, getJWTSecret()) as any;
   } catch {
     return NextResponse.json({ error: 'Oturum geçersiz.' }, { status: 401 });
   }
@@ -85,7 +85,7 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'Adres ID gerekli.' }, { status: 400 });
   // Sadece kendi adresini silebilsin
   const address = await prisma.address.findUnique({ where: { id } });
-  if (!address || address.userId !== Number(userData.id)) {
+  if (!address || address.userId !== Number(userData.userId)) {
     return NextResponse.json({ error: 'Adres bulunamadı veya yetkisiz.' }, { status: 403 });
   }
   await prisma.address.delete({ where: { id } });

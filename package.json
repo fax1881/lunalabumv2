@@ -57,10 +57,11 @@
     "eslint-config-next": "14.0.4",
     "prisma": "^6.11.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   },
   "prisma": {
     "generate": "prisma generate",
-    "seed": "ts-node-esm prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   }
 }

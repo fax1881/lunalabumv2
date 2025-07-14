@@ -5,11 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Environment-based database configuration
-// Local development: SQLite (fast, zero-config)
-// Production: PostgreSQL (Vercel Postgres, Supabase, etc.)
+// Production-Ready PostgreSQL Configuration
+// Supports: Local Development + All Hosting Platforms
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

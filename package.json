@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "seed": "ts-node --compiler-options \"{\"module\":\"CommonJS\"}\" prisma/seed.ts",
     "db:setup": "node scripts/setup-db.js",
     "db:switch": "node scripts/switch-db.js",
     "db:sqlite": "node scripts/switch-db.js sqlite",

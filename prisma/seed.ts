@@ -21,7 +21,7 @@ async function main() {
       name: 'Canvas Tablo',
       description: 'Tuval üzerine profesyonel baskı',
       price: 85.00,
-      category: 'Canvas',
+      category: 'Canvas Tablo',
       image: '/api/placeholder/300/200',
       inStock: true,
       sizes: JSON.stringify(['20x30', '30x40', '40x60']),

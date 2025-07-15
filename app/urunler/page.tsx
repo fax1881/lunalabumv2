@@ -85,9 +85,12 @@ export default function ProductsPage() {
   const categories = [
     { id: 'all', name: 'Tüm Kategoriler' },
     { id: 'Fotoğraf Baskısı', name: 'Fotoğraf Baskısı' },
+    { id: 'Fotokitap', name: 'Fotokitap' },
     { id: 'Canvas Tablo', name: 'Canvas Tablo' },
     { id: 'Foto Takvim', name: 'Foto Takvim' },
-    { id: 'Pola Kart', name: 'Pola Kart' }
+    { id: 'Pola Kart', name: 'Pola Kart' },
+    { id: 'Foto Magnet', name: 'Foto Magnet' },
+    { id: 'Çerçeveli Fotoğraf', name: 'Çerçeveli Fotoğraf' }
   ];
 
   const sortOptions = [

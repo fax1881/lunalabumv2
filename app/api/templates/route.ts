@@ -1,154 +1,73 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { verifyToken } from '../../../lib/auth';
+import { NextRequest, NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { verifyTokenEdge } from '../../../lib/auth'
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
+export const dynamic = 'force-dynamic'
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic';
-
-// GET /api/templates - Şablonları listele
-export async function GET(request: NextRequest) {
+// Templates list
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const isActive = searchParams.get('isActive');
-    const isPremium = searchParams.get('isPremium');
-
-    const where: any = {};
-    
-    if (category) {
-      where.category = category;
-    }
-    
-    if (isActive !== null) {
-      where.isActive = isActive === 'true';
-    }
-    
-    if (isPremium !== null) {
-      where.isPremium = isPremium === 'true';
-    }
-
+    const { searchParams } = new URL(req.url)
+    const category = searchParams.get('category')
+    const where = category ? { category, isActive: true } : { isActive: true }
     const templates = await prisma.template.findMany({
       where,
-      include: {
-        elements: true,
-        _count: {
-          select: {
-            designs: true
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      templates
-    });
-
-  } catch (error) {
-    console.error('Templates GET error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Şablonlar yüklenirken hata oluştu' },
-      { status: 500 }
-    );
+      include: { elements: true }
+    })
+    return NextResponse.json(templates)
+  } catch (err) {
+    console.error('Template GET error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 }
 
-// POST /api/templates - Yeni şablon oluştur
-export async function POST(request: NextRequest) {
+// Create template (admin only)
+export async function POST(req: NextRequest) {
   try {
-    // Admin yetkisi kontrolü
-    const token = request.cookies.get('token')?.value;
-    if (!token) {
-      return NextResponse.json(
-        { success: false, error: 'Token gerekli' },
-        { status: 401 }
-      );
+    const token = req.cookies.get('token')?.value
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const payload = await verifyTokenEdge(token)
+    if (!payload || payload.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const user = verifyToken(token);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: 'Geçersiz token' },
-        { status: 401 }
-      );
+    const body = await req.json()
+    const { name, description, category, thumbnail, width, height, price, elements } = body
+
+    if (!name || !category || !width || !height) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    if (user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, error: 'Admin yetkisi gerekli' },
-        { status: 403 }
-      );
-    }
-
-    const body = await request.json();
-    const {
-      name,
-      description,
-      category,
-      thumbnail,
-      width,
-      height,
-      isActive = true,
-      isPremium = false,
-      price = 0,
-      elements = []
-    } = body;
-
-    // Validation
-    if (!name || !category || !thumbnail || !width || !height) {
-      return NextResponse.json(
-        { success: false, error: 'Gerekli alanlar eksik' },
-        { status: 400 }
-      );
-    }
-
-    // Template oluştur
     const template = await prisma.template.create({
       data: {
         name,
         description,
         category,
         thumbnail,
-        width: parseInt(width),
-        height: parseInt(height),
-        isActive,
-        isPremium,
-        price: parseFloat(price),
+        width: Number(width),
+        height: Number(height),
+        price: price ? Number(price) : 0,
         elements: {
-          create: elements.map((element: any) => ({
-            type: element.type,
-            x: parseFloat(element.x),
-            y: parseFloat(element.y),
-            width: parseFloat(element.width),
-            height: parseFloat(element.height),
-            rotation: parseFloat(element.rotation || 0),
-            zIndex: parseInt(element.zIndex || 0),
-            properties: JSON.stringify(element.properties || {}),
-            isLocked: element.isLocked || false
+          create: (elements || []).map((el: any) => ({
+            type: el.type,
+            x: el.x,
+            y: el.y,
+            width: el.width,
+            height: el.height,
+            rotation: el.rotation || 0,
+            zIndex: el.zIndex || 0,
+            properties: JSON.stringify(el.properties || {})
           }))
         }
       },
-      include: {
-        elements: true
-      }
-    });
+      include: { elements: true }
+    })
 
-    return NextResponse.json({
-      success: true,
-      template,
-      message: 'Şablon başarıyla oluşturuldu'
-    });
-
-  } catch (error) {
-    console.error('Template POST error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Şablon oluşturulurken hata oluştu' },
-      { status: 500 }
-    );
+    return NextResponse.json(template, { status: 201 })
+  } catch (err) {
+    console.error('Template POST error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
 } 
